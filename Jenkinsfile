@@ -1,32 +1,25 @@
 pipeline {
     agent any
-
     stages {
-	
-        stage('CLONE GITHUB CODE') {
+        stage('CLone') {
             steps {
-                echo 'In this stage code will be clone'
-				git branch: 'main', url: 'https://github.com/devopstraininghub/mindcircuit15d.git'
-				
-				}
+                echo 'cloning code from github'
+                git branch: 'main', url: 'https://github.com/venudodla1/mindcircuit15.git'
+            }
+        
+    }
+    stage('Build') {
+        steps {
+            echo 'Building code'
+            sh 'mvn clean install'
         }
-		
-        stage('BUILDING THE CODE') {
+    
+    }
+    stage('Deploy') {
             steps {
-                echo 'In this stage code will be build and mvn artifact will be generated'
-				sh 'mvn clean install '
-				
+                echo 'Deploying into tomcat'
+                deploy adapters: [tomcat9(alternativeDeploymentContext: '', credentialsId: 'tomcat-id', path: '', url: 'http://ec2-44-201-126-243.compute-1.amazonaws.com:8080/')], contextPath: 'app', onFailure: false, war: '**/*.war'
             }
-        }		
-		
-        stage('DEPLOY') {
-            steps {
-                echo 'In this stage .war artiface will be deployed on to tomcat '
-				deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://54.91.227.106:8081/')], contextPath: 'devops-app', war: '**/*.war'
-				
-            }
-        }		
-		
-		
+        }
     }
 }
